@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);casca
 
   const handleAuth = async (isLogin) => {
     setLoading(true);
