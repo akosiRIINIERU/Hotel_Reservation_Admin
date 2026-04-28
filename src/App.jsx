@@ -5,7 +5,7 @@ import Auth from './components/Auth';
 import DashboardLayout from './components/DashboardLayout';
 import ManageRooms from './pages/ManageRooms';
 import ManageReservations from './pages/ManageReservations';
-import Settings from './pages/Settings'; // <-- Import Settings
+import Settings from './pages/Settings';
 import AboutUs from './pages/AboutUs';
 import './App.css';
 
