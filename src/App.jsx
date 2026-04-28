@@ -12,11 +12,7 @@ import './App.css';
 function PublicNav() {
   return (
     <header>
-      <img 
-        src="/logo.png" 
-        alt="Villa Gianna d'Oro" 
-        style={{ height: '60px', objectFit: 'contain', marginBottom: '20px' }} 
-      />
+      <h1>Villa Gianna d'Oro</h1>
       <nav>
         <Link to="/about" style={{ color: 'var(--gold-accent)', textDecoration: 'none', marginRight: '20px' }}>About Us</Link>
         <Link to="/login" style={{ color: 'var(--text-main)', textDecoration: 'none' }}>Admin Login</Link>
