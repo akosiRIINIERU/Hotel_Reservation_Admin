@@ -3,14 +3,14 @@ import React from 'react';
 export default function AboutUs() {
   const team = [
     { name: 'Renhiel Maghanoy', role: 'BSIT 3rd Year Student' },
-    { name: 'Janna Sumalpong', role: 'BSIT 3rd Year Student' },
+    { name: 'Janna Sumalpong', role: 'CEO' },
     { name: 'Erika Jhong Imperio', role: 'BSIT 3rd Year Student' },
     { name: 'Merryl Ignacio', role: 'BSIT 3rd Year Student' }
   ];
 
   return (
     <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
-      <h1 style={{ fontSize: '3rem', marginBottom: '20px' }}>The Grand Elysium Hotel</h1>
+      <h1 style={{ fontSize: '3rem', marginBottom: '20px' }}>Villa Gianna d'Oro Hotel</h1>
       <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-muted)' }}>
         Welcome to a world of unparalleled luxury and refined elegance. Established with a vision to redefine hospitality, 
         our hotel offers a sanctuary of comfort away from the bustling city. 
