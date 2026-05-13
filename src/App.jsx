@@ -7,6 +7,7 @@ import ManageRooms from './pages/ManageRooms';
 import ManageReservations from './pages/ManageReservations';
 import Settings from './pages/Settings';
 import AboutUs from './pages/AboutUs';
+import WalkInBooking from './pages/WalkInBooking'; // <-- 1. NEW IMPORT
 import './App.css';
 
 function PublicNav() {
@@ -49,7 +50,8 @@ export default function App() {
             <Route index element={<Navigate to="/reservations" />} />
             <Route path="reservations" element={<ManageReservations />} />
             <Route path="rooms" element={<ManageRooms />} />
-            <Route path="settings" element={<Settings />} /> {/* <-- Add Route */}
+            <Route path="walk-in" element={<WalkInBooking />} /> {/* <-- 2. NEW ROUTE */}
+            <Route path="settings" element={<Settings />} /> 
           </Route>
         </Routes>
       </div>

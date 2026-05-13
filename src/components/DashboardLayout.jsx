@@ -23,7 +23,8 @@ export default function DashboardLayout() {
         <nav style={{ marginBottom: '30px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
           <Link to="/reservations" style={navStyle('/reservations')}>Reservations</Link>
           <Link to="/rooms" style={navStyle('/rooms')}>Manage Rooms</Link>
-          <Link to="/settings" style={navStyle('/settings')}>Settings</Link> {/* <-- Add Link */}
+          <Link to="/settings" style={navStyle('/settings')}>Settings</Link>
+          <Link to="/walk-in">Walk-In Booking</Link>
         </nav>
         <main><Outlet /></main>
       </div>

@@ -29,17 +29,19 @@ export default function ManageReservations() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h2>Guest Reservations</h2>
-        <button onClick={fetchReservations} style={{ fontSize: '0.8rem' }}>Refresh List</button>
+        <button onClick={fetchReservations} style={{ fontSize: '0.8rem', padding: '8px 15px', background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}>
+          Refresh List
+        </button>
       </div>
 
-      <table>
-        <thead>
+      <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: '8px', overflow: 'hidden' }}>
+        <thead style={{ background: 'var(--bg-dark)', borderBottom: '1px solid var(--border-color)' }}>
           <tr>
-            <th>Guest Name</th>
-            <th>Room Type</th>
-            <th>Check-in / Out</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Guest Name</th>
+            <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Room Type</th>
+            <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Check-in / Out</th>
+            <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Status</th>
+            <th style={{ padding: '15px', textAlign: 'left', color: 'var(--text-muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -51,49 +53,67 @@ export default function ManageReservations() {
             </tr>
           ) : (
             reservations.map(res => (
-              <tr key={res.id}>
-                <td>
+              <tr key={res.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <td style={{ padding: '15px' }}>
                   <span style={{ fontWeight: '600' }}>{res.guest_name}</span>
                 </td>
-                <td>{res.rooms?.name} <small style={{ color: 'var(--gold-accent)' }}>({res.rooms?.room_number_range})</small></td>
-                <td>
+                <td style={{ padding: '15px' }}>{res.rooms?.name} <small style={{ color: 'var(--gold-accent)' }}>({res.rooms?.room_number_range})</small></td>
+                <td style={{ padding: '15px' }}>
                   <div style={{ fontSize: '0.85rem' }}>{res.check_in_date}</div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>to {res.check_out_date}</div>
                 </td>
-                <td>
+                <td style={{ padding: '15px' }}>
                   <span style={{ 
                     color: res.status === 'Confirmed' ? '#4CAF50' : res.status === 'Cancelled' ? '#ff4d4d' : 'var(--gold-accent)',
                     fontWeight: 'bold',
                     fontSize: '0.8rem',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
+                    padding: '4px 8px',
+                    background: res.status === 'Confirmed' ? 'rgba(76, 175, 80, 0.1)' : res.status === 'Cancelled' ? 'rgba(255, 77, 77, 0.1)' : 'rgba(212, 175, 55, 0.1)',
+                    borderRadius: '4px'
                   }}>
                     {res.status}
                   </span>
                 </td>
-                <td>
+                <td style={{ padding: '15px' }}>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
                       onClick={() => setSelectedRes(res)}
-                      style={{ padding: '5px 10px', fontSize: '0.75rem', borderColor: 'var(--border-color)' }}
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}
                     >
                       Details
                     </button>
                     
+                    {/* Shows only when Pending */}
                     {res.status === 'Pending' && (
                       <>
                         <button 
                           onClick={() => updateStatus(res.id, 'Confirmed')} 
-                          style={{ padding: '5px 10px', fontSize: '0.75rem', background: '#4CAF50', color: 'white', border: 'none' }}
+                          style={{ padding: '6px 12px', fontSize: '0.75rem', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
                         >
                           Confirm
                         </button>
                         <button 
                           onClick={() => updateStatus(res.id, 'Cancelled')} 
-                          style={{ padding: '5px 10px', fontSize: '0.75rem', background: '#ff4d4d', color: 'white', border: 'none' }}
+                          style={{ padding: '6px 12px', fontSize: '0.75rem', background: 'transparent', color: '#ff4d4d', border: '1px solid #ff4d4d', borderRadius: '4px', cursor: 'pointer' }}
                         >
                           Decline
                         </button>
                       </>
+                    )}
+
+                    {/* NEW: Shows only when Confirmed so you can cancel it later */}
+                    {res.status === 'Confirmed' && (
+                       <button 
+                         onClick={() => {
+                           if(window.confirm(`Are you sure you want to cancel the confirmed booking for ${res.guest_name}?`)) {
+                             updateStatus(res.id, 'Cancelled');
+                           }
+                         }} 
+                         style={{ padding: '6px 12px', fontSize: '0.75rem', background: '#ff4d4d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                       >
+                         Cancel Booking
+                       </button>
                     )}
                   </div>
                 </td>
@@ -140,13 +160,15 @@ export default function ManageReservations() {
               </div>
               <div>
                 <label style={labelStyle}>Current Status</label>
-                <div style={{ ...valueStyle, color: 'var(--gold-accent)', fontWeight: 'bold' }}>{selectedRes.status}</div>
+                <div style={{ ...valueStyle, color: selectedRes.status === 'Confirmed' ? '#4CAF50' : selectedRes.status === 'Cancelled' ? '#ff4d4d' : 'var(--gold-accent)', fontWeight: 'bold' }}>
+                  {selectedRes.status}
+                </div>
               </div>
             </div>
 
             <button 
               onClick={() => setSelectedRes(null)} 
-              style={{ marginTop: '30px', width: '100%' }}
+              style={{ marginTop: '30px', width: '100%', padding: '12px', background: 'transparent', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}
             >
               Close Details
             </button>
