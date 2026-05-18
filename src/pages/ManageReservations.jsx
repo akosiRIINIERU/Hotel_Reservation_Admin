@@ -100,7 +100,7 @@ export default function ManageReservations() {
       </div>
 
       <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
-        {['All', 'Confirmed', 'Cancelled'].map(status => (
+        {['All', 'Confirmed', 'Pending', 'Cancelled'].map(status => (
           <button
             key={status}
             onClick={() => setFilterStatus(status)}
