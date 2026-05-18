@@ -4,6 +4,7 @@ import { supabase } from '../supabaseClient';
 export default function ManageReservations() {
   const [reservations, setReservations] = useState([]);
   const [selectedRes, setSelectedRes] = useState(null); // State for the Details Modal
+  const [filterStatus, setFilterStatus] = useState('All');
 
   useEffect(() => {
     fetchReservations();
@@ -19,6 +20,46 @@ export default function ManageReservations() {
     else setReservations(data);
   };
 
+  const confirmedCount = reservations.filter(res => res.status === 'Confirmed').length;
+  const cancelledCount = reservations.filter(res => res.status === 'Cancelled').length;
+  const pendingCount = reservations.filter(res => res.status === 'Pending').length;
+  const filteredReservations = filterStatus === 'All'
+    ? reservations
+    : reservations.filter(res => res.status === filterStatus);
+
+  const generateReport = () => {
+    const rows = filteredReservations.map(res => ({
+      'Guest Name': res.guest_name,
+      'Room Type': res.rooms?.name || 'N/A',
+      'Room Units': res.rooms?.room_number_range || 'N/A',
+      'Check-In': res.check_in_date,
+      'Check-Out': res.check_out_date,
+      'Status': res.status,
+      'Contact': res.guest_contact,
+      'Created At': res.created_at || ''
+    }));
+
+    const csvHeader = Object.keys(rows[0] || {
+      'Guest Name': '', 'Room Type': '', 'Room Units': '', 'Check-In': '', 'Check-Out': '', 'Status': '', 'Contact': '', 'Created At': ''
+    }).join(',');
+    const csvRows = rows.map(row =>
+      Object.values(row)
+        .map(value => `"${String(value).replace(/"/g, '""')}"`)
+        .join(',')
+    );
+
+    const csvContent = [csvHeader, ...csvRows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `reservations-report-${filterStatus.toLowerCase()}-${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const updateStatus = async (id, status) => {
     const { error } = await supabase.from('reservations').update({ status }).eq('id', id);
     if (error) alert(error.message);
@@ -27,11 +68,55 @@ export default function ManageReservations() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>Guest Reservations</h2>
-        <button onClick={fetchReservations} style={{ fontSize: '0.8rem', padding: '8px 15px', background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}>
-          Refresh List
-        </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <h2 style={{ margin: 0 }}>Guest Reservations</h2>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <button onClick={fetchReservations} style={{ fontSize: '0.8rem', padding: '8px 15px', background: 'var(--bg-card)', color: 'var(--text-main)', border: '1px solid var(--border-color)', borderRadius: '4px', cursor: 'pointer' }}>
+            Refresh List
+          </button>
+          <button onClick={generateReport} style={{ fontSize: '0.8rem', padding: '8px 15px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+            Generate Report
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(150px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ padding: '15px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Total Reservations</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: '700' }}>{reservations.length}</div>
+        </div>
+        <div style={{ padding: '15px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Approved Reservations</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: '700' }}>{confirmedCount}</div>
+        </div>
+        <div style={{ padding: '15px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Cancelled Reservations</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: '700' }}>{cancelledCount}</div>
+        </div>
+        <div style={{ padding: '15px', borderRadius: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '8px' }}>Pending Reservations</div>
+          <div style={{ fontSize: '1.8rem', fontWeight: '700' }}>{pendingCount}</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px' }}>
+        {['All', 'Confirmed', 'Cancelled'].map(status => (
+          <button
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            style={{
+              padding: '9px 16px',
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              borderRadius: '999px',
+              border: filterStatus === status ? '1px solid #3b82f6' : '1px solid var(--border-color)',
+              background: filterStatus === status ? '#e0f2fe' : 'var(--bg-card)',
+              color: filterStatus === status ? '#1d4ed8' : 'var(--text-main)'
+            }}
+          >
+            {status === 'Confirmed' ? 'Approved' : status}
+          </button>
+        ))}
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--bg-card)', borderRadius: '8px', overflow: 'hidden' }}>
@@ -45,14 +130,16 @@ export default function ManageReservations() {
           </tr>
         </thead>
         <tbody>
-          {reservations.length === 0 ? (
+          {filteredReservations.length === 0 ? (
             <tr>
               <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                No reservations found in the system.
+                {reservations.length === 0
+                  ? 'No reservations found in the system.'
+                  : `No ${filterStatus === 'All' ? '' : filterStatus === 'Confirmed' ? 'approved' : filterStatus.toLowerCase()} reservations found.`}
               </td>
             </tr>
           ) : (
-            reservations.map(res => (
+            filteredReservations.map(res => (
               <tr key={res.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <td style={{ padding: '15px' }}>
                   <span style={{ fontWeight: '600' }}>{res.guest_name}</span>
